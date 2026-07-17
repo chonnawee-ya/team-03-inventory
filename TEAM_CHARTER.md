@@ -7,9 +7,9 @@
 | ชนวีร์ แย้มขยาย  | chonnawee-ya             | Product Owner |
 | กณิศ สิงห์คำ  | kansi-art             | Scrum Master / Developer |
 | ภัทรภณ ตันนารัตน์  | ...             | Scrum Master / Developer |
-| วิชชากร  | ...             | Developer |
-| ปรัชญากร  | ...             | Developer |
-| สุพัชญา  | ...             | Developer |
+| วิชชากร เดชสุพา | ...             | Developer |
+| ปรัชญากร นาสา | ...             | Developer |
+| สุพิชญา จันทร์น้ำคำ | ...             | Developer |
 
 ## Branching Strategy
 
