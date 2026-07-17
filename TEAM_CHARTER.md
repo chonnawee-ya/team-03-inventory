@@ -8,7 +8,7 @@
 | กณิศ สิงห์คำ  | kansi-art             | Scrum Master / Developer |
 | ภัทรภณ ตันนารัตน์  | Yoru006           | Scrum Master / Developer |
 | วิชชากร เดชสุพา | ...             | Developer |
-| ปรัชญากร นาสา | ...             | Developer |
+| ปรัชญากร นาสา | pratchaykornnasa            | Developer |
 | สุพิชญา จันทร์น้ำคำ | ...             | Developer |
 
 ## Branching Strategy
