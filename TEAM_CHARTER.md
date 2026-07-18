@@ -7,7 +7,7 @@
 | ชนวีร์ แย้มขยาย  | chonnawee yaemkhayai                | Product Owner |
 | กณิศ สิงห์คำ  | Kansi Singkham             | Scrum Master / Developer |
 | ภัทรภณ ตันนารัตน์  | Yoru006           | Scrum Master / Developer |
-| วิชชากร เดชสุพา | ...             | Developer |
+| วิชชากร เดชสุพา | wichakorn4             | Developer |
 | ปรัชญากร นาสา | pratchaykornnasa            | Developer |
 | สุพิชญา จันทร์น้ำคำ | Supitchaya Channamkham             | Developer |
 
