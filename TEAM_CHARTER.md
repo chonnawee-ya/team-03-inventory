@@ -9,7 +9,7 @@
 | ภัทรภณ ตันนารัตน์  | Yoru006           | Scrum Master / Developer |
 | วิชชากร เดชสุพา | ...             | Developer |
 | ปรัชญากร นาสา | pratchaykornnasa            | Developer |
-| สุพิชญา จันทร์น้ำคำ | ...             | Developer |
+| สุพิชญา จันทร์น้ำคำ | Supitchaya Channamkham             | Developer |
 
 ## Branching Strategy
 
