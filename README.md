@@ -1,4 +1,4 @@
-# team-XX-inventory — ระบบสต็อกร้านเขียนดี
+# team-03-inventory — ระบบสต็อกร้านเขียนดี
 
 โปรแกรม command-line จัดการสต็อกสินค้าร้านเครื่องเขียน เก็บข้อมูลในไฟล์ JSON
 ทำขึ้นสำหรับ **Lab 2: Software Engineering in AI Era**
