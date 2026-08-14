@@ -3,7 +3,6 @@
 โปรแกรม command-line จัดการสต็อกสินค้าร้านเครื่องเขียน เก็บข้อมูลในไฟล์ JSON
 ทำขึ้นสำหรับ **Lab 2: Software Engineering in AI Era**
 
-> แก้ `team-XX` ในชื่อ repository และหัวข้อนี้เป็นหมายเลขทีมของตัวเอง
 
 ## Requirements
 
