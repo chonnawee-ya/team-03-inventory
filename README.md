@@ -1,97 +1,50 @@
-# team-03-inventory — ระบบสต็อกร้านเขียนดี
+# Team 03 Inventory System (Refactored Version)
 
-โปรแกรม command-line จัดการสต็อกสินค้าร้านเครื่องเขียน เก็บข้อมูลในไฟล์ JSON
-ทำขึ้นสำหรับ **Lab 2: Software Engineering in AI Era**
+ระบบจัดการสต็อกสินค้าร้านเครื่องเขียนที่ได้รับการปรับปรุงโครงสร้าง (Refactoring) ให้สอดคล้องกับหลักการ **SOLID Principles** เพื่อเพิ่มความยืดหยุ่นในการดูแลและขยายระบบในอนาคต (Scalability)
 
+โปรเจกต์นี้เป็นส่วนหนึ่งของ **Lab 2: Software Engineering in AI Era**
 
-## Requirements
+## 🏗️ โครงสร้างสถาปัตยกรรมใหม่ (New Architecture)
 
-- Python 3.9 ขึ้นไป (ไม่ต้องติดตั้ง library เพิ่ม ใช้แต่ standard library)
+ระบบได้ถูกรื้อโครงสร้างจากเดิมที่รวมทุกอย่างไว้ที่เดียว หรือแบ่งยิบย่อยเกินไป มาเป็นโครงสร้างที่เน้น **Domain-Driven Design (DDD)** และ **SOLID** ดังนี้:
 
-## เริ่มใช้งาน
+- `inventory-sdd/src/models.py` : รับผิดชอบด้านโครงสร้างข้อมูล (Product, StockTransaction)
+- `inventory-sdd/src/service.py` : รับผิดชอบเฉพาะ Business Logic หลัก (InventoryService)
+- `inventory-sdd/src/events.py` : ระบบ Event Publisher / Subscriber (**Observer Pattern**) แจ้งเตือนเมื่อสต็อกเปลี่ยนหรือต่ำกว่าเกณฑ์
+- `inventory-sdd/src/notifiers.py` : ระบบแจ้งเตือน (Email, SMS) ที่ทำงานเชื่อมกับ Event
+- `inventory-sdd/src/exporters.py` : ระบบ Export CSV แยกตัวออกมาเพื่อลดภาระ Service (**Factory Pattern**)
 
-```bash
-git clone https://github.com/<username>/team-XX-inventory.git
-cd team-XX-inventory
-python3 main.py list
-```
+## 💡 Design Patterns ที่ใช้งาน
 
-ไฟล์ข้อมูล `items.json` จะถูกสร้างอัตโนมัติเมื่อ `add` สินค้าชิ้นแรก
-(ถ้าต้องการใช้ไฟล์คนละที่ ใส่ `--data path/to/file.json` ต่อท้ายทุกคำสั่งได้)
+1. **Observer Pattern**: เราใช้ `EventPublisher` ใน `service.py` แทนการเรียกใช้ Notifier โดยตรง ทำให้เราสามารถขยายช่องทางการแจ้งเตือนใหม่ๆ ได้โดยไม่ต้องแก้ไข Service (ตอบโจทย์ OCP)
+2. **Factory Pattern**: การแยก `ExporterFactory` และ `NotifierFactory` ทำให้กระบวนการสร้าง Object ไม่ไปปะปนกับ Business Logic (ตอบโจทย์ SRP)
 
-## คำสั่งที่รองรับ
+## 🚀 การรันชุดทดสอบ (Testing)
 
-| คำสั่ง   | User Story | ทำอะไร                                      |
-| -------- | ---------- | -------------------------------------------- |
-| `list`   | US-01      | แสดงรายการสินค้าทั้งหมดพร้อมจำนวนคงเหลือ     |
-| `add`    | US-02      | เพิ่มสินค้าใหม่เข้าระบบ                      |
-| `update` | US-03      | ปรับจำนวนสินค้าเมื่อรับเข้า / จ่ายออก        |
-| `search` | US-04      | ค้นหาสินค้าด้วยชื่อหรือรหัส                  |
-| `export` | US-05      | ส่งออกรายงานสต็อกเป็นไฟล์ CSV                |
+โปรเจกต์นี้มาพร้อมกับ Unit Tests, Integration Tests และสคริปต์ตรวจวัด Acceptance Criteria (AC) ที่ครอบคลุมทุก User Story ตามที่ระบุไว้ใน `inventory-sdd/specs/spec.md`
 
-### ตัวอย่าง
+1. **รัน Unit Test หลัก**:
+   ```bash
+   python inventory-sdd/src/test_inventory_service.py
+   ```
 
-```bash
-# US-01: ดูรายการสินค้าทั้งหมด
-python3 main.py list
+2. **รัน Integration Test** (ทดสอบการไหลของข้อมูลตั้งแต่เพิ่มสินค้า ยันแจ้งเตือนและ Export):
+   ```bash
+   python inventory-sdd/src/test_integration.py
+   ```
 
-# US-02: เพิ่มสินค้าใหม่
-python3 main.py add --code A001 --name "ปากกาลูกลื่นสีน้ำเงิน" --qty 50
+3. **รันตรวจสอบ AC Compliance** (เทียบ Requirement):
+   ```bash
+   python test_ac_compliance.py
+   ```
 
-# US-03: ปรับจำนวน (delta บวก = รับของเข้า, ลบ = จ่ายของออก)
-python3 main.py update --code A001 --delta -5 --reason "ขายให้ลูกค้า"
-python3 main.py update --code A001 --delta 20 --reason "รับของเข้าคลัง"
+## 📁 ไฟล์เอกสารที่สำคัญ (Documentation)
 
-# US-04: ค้นหาด้วยชื่อหรือรหัส
-python3 main.py search --query ปากกา
-python3 main.py search --query A001
+- `inventory-sdd/specs/spec.md` : Requirement ฉบับสมบูรณ์ (User Stories, AC, Scope, Schema)
+- `inventory-sdd/.ai-rules.md` : กฎและบริบทสำหรับ AI Agent 
+- `inventory-sdd/design_review.md` : การทบทวนและวิเคราะห์โค้ดตามหลัก SOLID
+- `inventory-sdd/AI_ITERATION_LOG.md` : บันทึกประวัติการทำงานร่วมกับ AI Agent
+- `inventory-sdd/diagrams/` : แผนภาพ Class Diagram และ Sequence Diagram (Mermaid)
 
-# US-05: ส่งออกเป็น CSV
-python3 main.py export --output stock_report.csv
-```
-
-ทุกคำสั่งพิมพ์ `--help` เพื่อดูตัวเลือกทั้งหมดได้ เช่น `python3 main.py add --help`
-
-## รัน unit test
-
-```bash
-python3 -m unittest test_inventory.py -v
-```
-
-Test ครอบคลุม acceptance criteria หลักของทุก user story (list ว่าง/ไม่ว่าง,
-add ซ้ำรหัส, update ติดลบไม่ได้, search ไม่พบ, export ได้ไฟล์ CSV ที่ถูกต้อง)
-
-## โครงสร้างไฟล์
-
-```
-.
-├── main.py                    # entry point — เชื่อมต่อและควบคุมทุกคำสั่ง
-├── models.py                   # โครงสร้างข้อมูล Item
-├── storage.py                   # อ่าน/เขียนไฟล์ JSON
-├── commands/
-│   ├── list_items.py               # US-01
-│   ├── add_item.py                 # US-02
-│   ├── update_item.py              # US-03
-│   ├── search_items.py             # US-04
-│   └── export_items.py             # US-05
-├── test_inventory.py            # unit tests
-├── items.json                    # ข้อมูลสินค้า (สร้างอัตโนมัติ ไม่ควร commit)
-├── TEAM_CHARTER.md                # บทบาททีม + branching strategy + sprint goal
-├── RETRO-SPRINT-1.md              # sprint retrospective
-└── README.md
-```
-
-**แนวคิดของโครงสร้าง:** แต่ละ user story แยกเป็น 1 ไฟล์ใน `commands/` โดยมี
-ฟังก์ชันหลัก (`cmd_xxx`) ที่ทำงานจริง และฟังก์ชัน `register()` ที่ผูกคำสั่งเข้ากับ
-argparse `main.py` มีหน้าที่แค่ import ทุก command module แล้วเรียก `register()`
-ของแต่ละตัว — ไม่รู้รายละเอียด logic ข้างในเลย ทำให้:
-- แต่ละคนในทีมทำงานคนละไฟล์ใน `commands/` ได้พร้อมกันโดยไม่ conflict กัน
-- เพิ่มคำสั่งใหม่ในอนาคต แค่สร้างไฟล์ใหม่ใน `commands/` แล้วเติมชื่อ module
-  ลงใน `COMMAND_MODULES` ใน `main.py` บรรทัดเดียว
-
-## Workflow ของทีม
-
-ทีมนี้ใช้ **GitHub Flow**: `main` ต้อง deploy ได้เสมอ ทุก feature พัฒนาบน branch
-`feat/<issue-number>-<short-name>` แล้วเปิด Pull Request ให้เพื่อนใน team
-review และ approve ก่อน merge เสมอ (ห้าม commit ตรงเข้า `main`, ห้าม merge PR
-ของตัวเอง) รายละเอียดดู `TEAM_CHARTER.md`
+---
+*Developed with 💙 by Team 03*
