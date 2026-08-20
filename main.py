@@ -37,8 +37,11 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
+import os
 from storage import DEFAULT_DATA_FILE
-from commands import add_item, export_items, list_items, search_items, update_item
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory-sdd", "src"))
+import add_item, export_items, list_items, search_items, update_item
 
 # ลงทะเบียนคำสั่งทั้งหมดที่นี่ที่เดียว — เพิ่มคำสั่งใหม่แค่เพิ่มไฟล์ใน commands/
 # แล้วเติมชื่อ module ลงลิสต์นี้
