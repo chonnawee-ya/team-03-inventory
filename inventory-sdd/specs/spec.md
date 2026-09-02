@@ -87,7 +87,6 @@ Scenario: ระบบปฏิเสธเมื่อไม่ระบุ thr
   When พนักงานกดปุ่ม "บันทึก"
   Then ระบบต้องไม่อนุญาตให้บันทึก และแสดงข้อความ "กรุณาระบุ threshold"
 ```
-> 🔧 เพิ่ม `threshold` เข้าไปเป็น required field (เดิมหายไปทั้งที่ schema กำหนดว่าต้องมี), แยก `ราคา` เป็น `ราคาทุน`/`ราคาขาย` ให้ตรงกับ schema, เพิ่ม validation สำหรับค่าติดลบ และระบุว่า SKU dedup เป็น case-insensitive
 
 ### AC-04 (US-03 / FR-03, FR-04) — รับเข้า / ตัดจ่าย
 ```gherkin
@@ -149,7 +148,6 @@ Scenario: ส่งออกเมื่อไม่มีสินค้าต�
   When ผู้จัดการกดปุ่ม "Export CSV"
   Then ระบบดาวน์โหลดไฟล์ .csv ที่มีเฉพาะแถว header โดยไม่มี error
 ```
-> 🔧 เพิ่ม **FR-09** (ด้านล่าง) เพื่อรองรับ AC ชุดนี้อย่างชัดเจน แยกจาก FR-08 ที่เป็นรายงานมูลค่าสต็อก คนละ output กัน และเพิ่มเคส export แบบไม่มีข้อมูล
 
 ### AC-07 (US-06 / FR-08) — รายงานมูลค่าสต็อกแยกหมวดหมู่ 🔧
 ```gherkin
@@ -177,9 +175,8 @@ Scenario: แสดงรายงานเมื่อไม่มีสิน�
 - การส่งข้อความจริง (ไม่เชื่อมต่อ SMTP/SMS Gateway จริง)
 - การตรวจสอบสิทธิ์และผู้ใช้งาน (Authentication & Authorization)
 - การจัดเก็บข้อมูลถาวร (ไม่มี Database, ข้อมูลหายเมื่อปิดโปรแกรม)
-- การรองรับผู้ใช้งานพร้อมกันหลายคน (Multi-user concurrency) — ระบบออกแบบมาสำหรับ single-session เท่านั้น 🔧
+- การรองรับผู้ใช้งานพร้อมกันหลายคน (Multi-user concurrency) — ระบบออกแบบมาสำหรับ single-session เท่านั้น 
 
-> 🔧 เพิ่มข้อยกเว้นเรื่อง concurrency ให้ชัดเจนใน scope เพราะ Design Notes อ้างถึง "Atomic execution" ซึ่งอาจตีความว่าต้องรองรับ concurrent access — ถ้าไม่ต้องรองรับจริง ควรระบุไว้ตรงนี้เพื่อกันการตีความผิด
 
 ---
 
@@ -194,22 +191,19 @@ Scenario: แสดงรายงานเมื่อไม่มีสิน�
 | FR-06 | ระบบต้องสร้างข้อความแจ้งเตือนจำลอง (Console, รูปแบบ SMS) ทุกครั้งที่ทำรายการรับเข้า/ตัดจ่ายสำเร็จ (แยกอิสระจาก FR-05 — อาจเกิดพร้อมกันได้ในธุรกรรมเดียว) 🔧 | US-03 |
 | FR-07 | ระบบต้องรองรับการค้นหาสินค้าด้วย SKU หรือชื่อสินค้า แบบ partial match, case-insensitive | US-04 |
 | FR-08 | ระบบต้องประมวลผลและแสดงรายงานสรุปมูลค่าสต็อกคงเหลือ จัดกลุ่มตามหมวดหมู่ | US-06 🔧 |
-| FR-09 🔧 | ระบบต้องรองรับการ Export รายการสินค้า (ทั้งหมด หรือเฉพาะที่ผ่านการค้นหา/กรอง) เป็นไฟล์ CSV | US-05 |
-
-> 🔧 เพิ่ม **FR-09** ที่หายไปในฉบับเดิม (US-05 ไม่มี FR รองรับ), แก้ FR-08 ให้ map กับ US-06 ที่เพิ่มใหม่, แยกความรับผิดชอบของ FR-05/FR-06 ให้ชัดว่าเป็นคนละ trigger กัน ไม่ใช่ mutually exclusive
+| FR-09 | ระบบต้องรองรับการ Export รายการสินค้า (ทั้งหมด หรือเฉพาะที่ผ่านการค้นหา/กรอง) เป็นไฟล์ CSV | US-05 |
 
 ---
 
 ## 6. Non-Functional Requirements (NFR)
 | รหัส | มิติ | ความต้องการ (ต้องวัดได้) |
 |---|---|---|
-| NFR-01 | Performance | ระบบต้องประมวลผลและอัปเดตยอดสต็อกในหน่วยความจำได้ภายในไม่เกิน 0.5 วินาทีต่อ 1 รายการ (transaction, search, และ report ใช้เกณฑ์เดียวกันนี้) 🔧 |
+| NFR-01 | Performance | ระบบต้องประมวลผลและอัปเดตยอดสต็อกในหน่วยความจำได้ภายในไม่เกิน 0.5 วินาทีต่อ 1 รายการ (transaction, search, และ report ใช้เกณฑ์เดียวกันนี้) |
 | NFR-02 | Accuracy & Integrity | ทุกครั้งที่บันทึกรับ-จ่าย ยอดสต็อกคงเหลือและ Transaction Log ต้องอัปเดตตรงกันทันที ความแม่นยำ 100% |
 | NFR-03 | Usability | ไฟล์ CSV ที่ส่งออกต้องเข้ารหัส UTF-8 with BOM 🔧 เพื่อให้เปิดอ่านภาษาไทยบน Excel ได้ถูกต้อง |
 | NFR-04 | Maintainability & Extensibility | โค้ดส่วนจำลองการแจ้งเตือนต้องแยกจาก Business Logic หลัก เพื่อรองรับการเชื่อมต่อ SMS/Email Gateway จริงในอนาคต |
-| NFR-05 | Reliability & Robustness | ระบบต้องดักจับข้อผิดพลาด (Exception Handling) ป้องกันโปรแกรมหยุดทำงานเมื่อผู้ใช้กรอกข้อมูลผิดประเภท พร้อมแสดงข้อความเตือนที่ตรงกับ Error Schema ในข้อ 8 🔧 |
+| NFR-05 | Reliability & Robustness | ระบบต้องดักจับข้อผิดพลาด (Exception Handling) ป้องกันโปรแกรมหยุดทำงานเมื่อผู้ใช้กรอกข้อมูลผิดประเภท พร้อมแสดงข้อความเตือนที่ตรงกับ Error Schema ในข้อ 8 |
 
-> 🔧 รวมเกณฑ์ performance ให้เป็นมาตรฐานเดียว, ระบุ UTF-8 with BOM ให้ตรงกับ Design Notes, และผูก NFR-05 เข้ากับ Error Schema ที่มีอยู่แล้วเพื่อให้ "ข้อความเตือนที่ชัดเจน" วัดผลได้จริง (อ้างอิง error code ที่กำหนดไว้)
 
 ---
 
@@ -229,11 +223,10 @@ Transaction:
   id: uuid (Auto-generated)
   sku: string (Foreign Reference -> Product.sku)
   type: enum [STOCK_IN, STOCK_OUT]
-  quantity: decimal (> 0)   🔧
+  quantity: decimal (> 0)  
   note: string (Optional)
-  timestamp: ISO-8601 string (UTC)   🔧
+  timestamp: ISO-8601 string (UTC)  
 ```
-> 🔧 เปลี่ยน `quantity`/`threshold` จาก `integer` เป็น `decimal (2 ตำแหน่ง)` เพราะตัวอย่าง AC ใช้หน่วยนับ "เมตร" ซึ่งเป็นทศนิยมได้ในทางธุรกิจจริง (ขัดกับ schema เดิมที่บังคับ integer) — ถ้าต้องการบังคับ integer จริง ต้องเปลี่ยนตัวอย่างสินค้าในทุก AC ให้เป็นหน่วยนับที่เป็นจำนวนเต็มเท่านั้น (เช่น "ชิ้น") แทน และระบุ timezone ของ timestamp ให้ชัด
 
 ---
 
@@ -244,10 +237,9 @@ Transaction:
 | INSUFFICIENT_STOCK | ตัดจ่ายเกินยอดคงเหลือ | Abort mutation, แสดง "จำนวนคงเหลือไม่เพียงพอสำหรับการตัดจ่าย" |
 | INVALID_INPUT_TYPE | ค่าที่กรอกไม่ใช่ตัวเลข/รูปแบบผิด | Return structured error, แสดง "จำนวนต้องเป็นตัวเลขที่มากกว่า 0" |
 | NEGATIVE_VALUE | ราคา <= 0 หรือ จำนวน/threshold < 0 🔧 | Reject, แสดง "ค่าต้องไม่ติดลบ และราคาต้องมากกว่า 0" |
-| MISSING_REQUIRED_FIELD 🔧 | ไม่กรอก field บังคับ (รวม threshold) | Reject, แสดง "กรุณาระบุ [ชื่อ field]" |
+| MISSING_REQUIRED_FIELD | ไม่กรอก field บังคับ (รวม threshold) | Reject, แสดง "กรุณาระบุ [ชื่อ field]" |
 | PRODUCT_NOT_FOUND | อ้างอิง SKU ที่ไม่มีในระบบ | Return 404-style response |
 
-> 🔧 เพิ่ม `NEGATIVE_VALUE` และ `MISSING_REQUIRED_FIELD` ให้ครอบคลุม edge case ที่เพิ่มใน AC-03
 
 ---
 
