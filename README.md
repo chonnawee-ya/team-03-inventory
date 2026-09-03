@@ -19,6 +19,61 @@
 1. **Observer Pattern**: เราใช้ `EventPublisher` ใน `service.py` แทนการเรียกใช้ Notifier โดยตรง ทำให้เราสามารถขยายช่องทางการแจ้งเตือนใหม่ๆ ได้โดยไม่ต้องแก้ไข Service (ตอบโจทย์ OCP)
 2. **Factory Pattern**: การแยก `ExporterFactory` และ `NotifierFactory` ทำให้กระบวนการสร้าง Object ไม่ไปปะปนกับ Business Logic (ตอบโจทย์ SRP)
 
+## 💻 คำสั่งในการใช้งาน (CLI Commands)
+
+ระบบรองรับการทำงานผ่าน Command Line ด้วยคำสั่งต่างๆ ดังนี้:
+
+### 1. ดูรายการสินค้าทั้งหมด (List Items - US-01)
+แสดงรายการสินค้าทั้งหมด พร้อมรหัสสินค้า ชื่อสินค้า และจำนวนคงเหลือ
+```bash
+python main.py list
+```
+
+### 2. เพิ่มสินค้าใหม่เข้าระบบ (Add Item - US-02)
+เพิ่มรายการสินค้าใหม่โดยระบุรหัส ชื่อ และจำนวนเริ่มต้น (จำนวนต้องไม่ติดลบ และรหัสต้องไม่ซ้ำในระบบ)
+```bash
+python main.py add --code <รหัสสินค้า> --name "<ชื่อสินค้า>" --qty <จำนวน>
+```
+*ตัวอย่าง:*
+```bash
+python main.py add --code A001 --name "ปากกาลูกลื่นสีน้ำเงิน" --qty 50
+```
+
+### 3. ปรับปรุงจำนวนสินค้า รับเข้า/จ่ายออก (Update Item - US-03)
+แก้ไขจำนวนสินค้าในสต็อก โดยระบุค่าบวกสำหรับการรับเข้า และค่าลบสำหรับการจ่ายออก (มียอดคงเหลือป้องกันไม่ให้ติดลบ)
+```bash
+python main.py update --code <รหัสสินค้า> --delta <จำนวนที่เปลี่ยนแปลง> [--reason "<เหตุผล>"]
+```
+*ตัวอย่าง (จ่ายออก/ขายสินค้า):*
+```bash
+python main.py update --code A001 --delta -5 --reason "ขายให้ลูกค้า"
+```
+*ตัวอย่าง (รับสินค้าเข้าสต็อก):*
+```bash
+python main.py update --code A001 --delta 20 --reason "สั่งซื้อสินค้ามาเติม"
+```
+
+### 4. ค้นหาสินค้า (Search Items - US-04)
+ค้นหาสินค้าด้วยชื่อหรือรหัสสินค้า (ค้นหาแบบ Partial Match ไม่แยกตัวพิมพ์เล็ก-ใหญ่)
+```bash
+python main.py search --query <คำค้นหา>
+```
+*ตัวอย่าง:*
+```bash
+python main.py search --query ปากกา
+```
+
+### 5. ส่งออกรายงานสต็อกเป็นไฟล์ CSV (Export Items - US-05)
+ส่งออกข้อมูลสินค้าทั้งหมดออกเป็นไฟล์ `.csv` พร้อมข้อมูลเวลาอัปเดตล่าสุด
+```bash
+python main.py export [--output <ชื่อไฟล์.csv>]
+```
+*ตัวอย่าง:*
+```bash
+python main.py export --output stock_report.csv
+```
+*(หมายเหตุ: หากไม่ระบุ `--output` ระบบจะบันทึกเป็นชื่อ `stock_report.csv` โดยอัตโนมัติ และสามารถใช้พารามิเตอร์เสริม `--data <path_to_json>` ก่อนหน้าคำสั่งย่อยเพื่อระบุตำแหน่งไฟล์ฐานข้อมูลได้ เช่น `python main.py --data custom_data.json list`)*
+
 ## 🚀 การรันชุดทดสอบ (Testing)
 
 โปรเจกต์นี้มาพร้อมกับ Unit Tests, Integration Tests และสคริปต์ตรวจวัด Acceptance Criteria (AC) ที่ครอบคลุมทุก User Story ตามที่ระบุไว้ใน `inventory-sdd/specs/spec.md`
