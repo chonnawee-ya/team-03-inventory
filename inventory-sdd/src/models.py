@@ -33,6 +33,46 @@ class Product:
         """ตรวจสอบว่าสินค้านี้ถึงจุดสั่งซื้อหรือไม่ (quantity <= threshold)"""
         return self.quantity <= self.threshold
 
+    def to_dict(self) -> dict:
+        """แปลง object เป็น dictionary สำหรับบันทึก JSON"""
+        return {
+            "sku": self.sku,
+            "code": self.sku,
+            "name": self.name,
+            "category": self.category,
+            "cost_price": self.cost_price,
+            "sell_price": self.sell_price,
+            "unit": self.unit,
+            "quantity": self.quantity,
+            "threshold": self.threshold,
+        }
+
+class Item(Product):
+    """Compatibility alias for Item"""
+    def __init__(self, code: str = "", name: str = "", quantity: float = 0.0, updated_at: str = "",
+                 category: str = "เครื่องเขียน", cost_price: float = 10.0,
+                 sell_price: float = 20.0, unit: str = "ชิ้น", threshold: float = 5.0, sku: str = ""):
+        actual_sku = sku or code
+        super().__init__(
+            sku=actual_sku,
+            name=name,
+            category=category,
+            cost_price=cost_price,
+            sell_price=sell_price,
+            unit=unit,
+            quantity=quantity,
+            threshold=threshold,
+        )
+        self.updated_at = updated_at
+
+    @property
+    def code(self) -> str:
+        return self.sku
+
+    @code.setter
+    def code(self, val: str) -> None:
+        self.sku = val
+
 @dataclass
 class StockTransaction:
     """ข้อมูลประวัติการทำรายการรับ-จ่ายสต็อก"""
