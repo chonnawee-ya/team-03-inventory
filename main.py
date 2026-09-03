@@ -38,19 +38,22 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 import os
-from storage import DEFAULT_DATA_FILE
+from storage import DEFAULT_DATA_FILE, InventoryStore
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory-sdd", "src"))
-import add_item, export_items, list_items, search_items, update_item
+import add_item, export_items, list_items, search_items, update_item, report_items
+from events import EventPublisher
+from notifiers import NotifierFactory
+from service import InventoryService
 
-# ลงทะเบียนคำสั่งทั้งหมดที่นี่ที่เดียว — เพิ่มคำสั่งใหม่แค่เพิ่มไฟล์ใน commands/
-# แล้วเติมชื่อ module ลงลิสต์นี้
+# ลงทะเบียนคำสั่งทั้งหมดที่นี่ที่เดียว — เพิ่มคำสั่งใหม่แค่เพิ่มโมดูลลงลิสต์นี้
 COMMAND_MODULES = [
     list_items,    # US-01
     add_item,      # US-02
     update_item,   # US-03
     search_items,  # US-04
     export_items,  # US-05
+    report_items,  # US-06
 ]
 
 
@@ -77,11 +80,42 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[list[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # ประกอบร่างสถาปัตยกรรม (Dependency Injection): EventPublisher -> Notifiers -> Service
+    event_publisher = EventPublisher()
+    email_notifier = NotifierFactory.create("email")
+    sms_notifier = NotifierFactory.create("sms")
+
+    event_publisher.subscribe("LOW_STOCK_ALERT", email_notifier)
+    event_publisher.subscribe("STOCK_IN_SUCCESS", sms_notifier)
+    event_publisher.subscribe("STOCK_OUT_SUCCESS", sms_notifier)
+
+    service = InventoryService(event_publisher)
+    store = InventoryStore(args.data)
+
+    # โหลดข้อมูลสินค้าเดิมจาก JSON เข้า service
+    store.load_into_service(service)
+
+    # แนบ service และ store เข้า args เพื่อให้แต่ละคำสั่งใช้งานร่วมกันได้
+    args.service = service
+    args.store = store
+
     try:
-        args.func(args)  # เรียกฟังก์ชันคำสั่งที่ register ไว้ (คุมจาก main.py จุดเดียว)
+        args.func(args)  # เรียกฟังก์ชันคำสั่งที่ register ไว้
+        # บันทึกข้อมูลที่เปลี่ยนแปลงกลับลงไฟล์ JSON
+        store.save_from_service(service)
     except SystemExit as e:
-        print(str(e), file=sys.stderr)
+        # บันทึกข้อมูลก่อนออกหากมี
+        store.save_from_service(service)
+        if isinstance(e.code, int):
+            return e.code
+        if e.code is not None and str(e.code):
+            print(str(e.code), file=sys.stderr)
         return 1
+    except Exception as e:
+        print(f"เกิดข้อผิดพลาด: {e}", file=sys.stderr)
+        return 1
+
     return 0
 
 

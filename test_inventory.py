@@ -124,7 +124,7 @@ class InventoryCLITestCase(unittest.TestCase):
         self.assertTrue(out_file.exists())
         content = out_file.read_text(encoding="utf-8-sig")
         self.assertIn("A001", content)
-        self.assertIn("code,name,quantity,updated_at", content)
+        self.assertIn("SKU,Name,Category", content)
 
 
 if __name__ == "__main__":
